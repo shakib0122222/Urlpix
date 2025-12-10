@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixguard - URL Shortener</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Pixguard</h1>
+      <p>Shorten Your Long URL Easily Here</p>
+    </header>
+
+    <div class="card">
+      <input type="url" id="contentUrl" placeholder="Content Link (Video/Download)" required>
+      <input type="url" id="adUrl" placeholder="Ad Link (প্রথমে এড দেখাবে)" required>
+      <input type="file" id="image" accept="image/*" required>
+      <button id="generateBtn">Generate Short Link</button>
+      <div class="loader" id="loader"></div>
+    </div>
+
+    <div class="stats">মোট ভিজিটর: <span id="visits">0</span></div>
+    <footer>© 2025 Pixguard</footer>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
