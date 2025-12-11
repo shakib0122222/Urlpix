@@ -14,14 +14,15 @@
     </header>
 
     <div class="card">
-      <input type="url" id="contentUrl" placeholder="Content Link (Video/Download)" required>
-      <input type="url" id="adUrl" placeholder="Ad Link (এড দেখার পর যাবে)" required>
+      <input type="url" id="contentUrl" placeholder="Content Link (যেখানে ডাউনলোড হবে)" required>
+      <input type="url" id="adUrl" placeholder="Ad Link (প্রথমে এড দেখাবে)" required>
       <input type="file" id="image" accept="image/*" required>
       <button id="generateBtn">Generate Short Link</button>
       <div class="loader" id="loader"></div>
+      <div id="error" style="color:#ff6b6b;margin-top:15px;display:none;"></div>
     </div>
 
-    <div class="stats">মোট ভিজিটর: <span id="visits">10</span></div>
+    <div class="stats">মোট ভিজিটর: <span id="visits">0</span></div>
     <footer>© 2025 Pixguard</footer>
   </div>
 
