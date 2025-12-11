@@ -1,100 +1,70 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyDpv3NaTYjrmeoN19itDACcvEpMggd72H8",
-  authDomain: "url-c576f.firebaseapp.com",
-  projectId: "url-c576f",
-  storageBucket: "url-c576f.firebasestorage.app",
-  messagingSenderId: "681639648878",
-  appId: "1:681639648878:web:31d36b7e0c8031c806d07f",
-  measurementId: "G-HKS96B2T7T"
-};
-
+const firebaseConfig = {apiKey:"AIzaSyDpv3NaTYjrmeoN19itDACcvEpMggd72H8",authDomain:"url-c576f.firebaseapp.com",projectId:"url-c576f",storageBucket:"url-c576f.firebasestorage.app",messagingSenderId:"681639648878",appId:"1:681639648878:web:31d36b7e0c8031c806d07f",measurementId:"G-HKS96B2T7T"};
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const storage = firebase.storage();
 
 // index.html
 if (document.getElementById("generateBtn")) {
-  db.collection("stats").doc("total").onSnapshot(doc => {
-    document.getElementById("visits").textContent = (doc.data()?.count || 0).toLocaleString();
-  });
+  db.collection("stats").doc("t").onSnapshot(d=>document.getElementById("visits").textContent=(d.data()?.c||0).toLocaleString());
 
   document.getElementById("generateBtn").onclick = async () => {
-    const contentUrl = document.getElementById("contentUrl").value.trim();
-    const adUrl = document.getElementById("adUrl").value.trim();
-    const file = document.getElementById("image").files[0];
+    const c = document.getElementById("contentUrl").value.trim();
+    const a = document.getElementById("adUrl").value.trim();
+    const f = document.getElementById("image").files[0];
+    if (!c||!a||!f) {alert("সব পূরণ করো");return;}
 
-    if (!contentUrl || !adUrl || !file) return alert("সবকিছু পূরণ করুন!");
-
-    document.getElementById("loader").style.display = "block";
-    document.getElementById("generateBtn").disabled = true;
-    document.getElementById("generateBtn").textContent = "তৈরি হচ্ছে...";
+    document.getElementById("loader").style.display="block";
+    document.getElementById("generateBtn").disabled=true;
 
     try {
-      const id = Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
-      const shortLink = location.origin + "/view.html?id=" + id;
+      const id = Date.now().toString(36);
+      const link = location.origin+"/view.html?id="+id;
 
-      const uploadTask = await storage.ref(`thumbs/${id}`).put(file);
-      const imageUrl = await uploadTask.ref.getDownloadURL();
+      const snap = await storage.ref("t/"+id).put(f);
+      const img = await snap.ref.getDownloadURL();
 
-      await db.collection("links").doc(id).set({
-        content: contentUrl,
-        ad: adUrl,
-        imageUrl: imageUrl,
-        created: firebase.firestore.FieldValue.serverTimestamp()
-      });
+      await db.collection("l").doc(id).set({c,a,img,t:firebase.firestore.FieldValue.serverTimestamp()});
 
-      window.location.href = `success.html?id=${id}&url=${encodeURIComponent(shortLink)}`;
-
-    } catch (err) {
-      alert("Error: " + err.message);
-      document.getElementById("loader").style.display = "none";
-      document.getElementById("generateBtn").disabled = false;
-      document.getElementById("generateBtn").textContent = "Generate Short Link";
+      location.href = "success.html?u="+encodeURIComponent(link);
+    } catch(e) {
+      document.getElementById("error").style.display="block";
+      document.getElementById("error").textContent = "Error: "+e.message;
+      document.getElementById("loader").style.display="none";
+      document.getElementById("generateBtn").disabled=false;
     }
   };
 }
 
 // view.html
 if (document.getElementById("thumb")) {
-  const params = new URLSearchParams(location.search);
-  const id = params.get("id");
-  let ad = "", content = "", first = true;
+  const id = new URLSearchParams(location.search).get("id");
+  let ad="",content="",first=true;
 
-  db.collection("links").doc(id).get().then(doc => {
-    if (doc.exists) {
-      const d = doc.data();
-      ad = d.ad; content = d.content;
-      document.getElementById("thumb").src = d.imageUrl;
-
-      db.collection("stats").doc("total").set({count: firebase.firestore.FieldValue.increment(1)}, {merge: true});
+  db.collection("l").doc(id).get().then(d=>{
+    if(d.exists){
+      const x = d.data();
+      ad = x.a; content = x.c;
+      document.getElementById("thumb").src = x.img;
+      db.collection("stats").doc("t").set({c:firebase.firestore.FieldValue.increment(1)},{merge:true});
     }
   });
 
-  document.querySelectorAll(".btn").forEach(b => b.onclick = () => location.href = ad);
-  document.getElementById("startBtn").onclick = () => {
-    document.getElementById("startBtn").style.display = "none";
-    let t = 5;
-    const int = setInterval(() => {
-      t--;
-      document.getElementById("countdown").textContent = t;
-      if (t <= 0) { clearInterval(int); document.getElementById("countdown").textContent = "Ready!"; document.getElementById("finalGetLink").style.display = "block"; }
-    }, 1000);
+  document.querySelectorAll(".btn").forEach(b=>b.onclick=()=>{location.href=ad});
+  document.getElementById("startBtn").onclick=()=>{
+    document.getElementById("startBtn").style.display="none";
+    let t=5;
+    const i=setInterval(()=>{t--;document.getElementById("countdown").textContent=t;if(t<=0){clearInterval(i);document.getElementById("countdown").textContent="Ready!";document.getElementById("finalGetLink").style.display="block";}},1000);
   };
-
-  document.getElementById("finalGetLink").onclick = () => {
-    if (first) { first = false; location.href = ad; } else { location.href = content; }
-  };
+  document.getElementById("finalGetLink").onclick=()=>{first?(first=false,location.href=ad):location.href=content};
 }
 
 // success.html
 if (document.getElementById("shortLink")) {
-  const p = new URLSearchParams(location.search);
-  const url = decodeURIComponent(p.get("url") || "");
-  document.getElementById("shortLink").textContent = url;
+  const u = decodeURIComponent(new URLSearchParams(location.search).get("u")||"");
+  document.getElementById("shortLink").textContent = u;
   document.getElementById("copyBtn").onclick = () => {
-    navigator.clipboard.writeText(url).then(() => {
-      document.getElementById("copyBtn").textContent = "কপি হয়েছে!";
-      setTimeout(() => document.getElementById("copyBtn").textContent = "Copy Link", 2000);
-    });
+    navigator.clipboard.writeText(u);
+    document.getElementById("copyBtn").textContent = "কপি হয়েছে!";
+    setTimeout(()=>document.getElementById("copyBtn").textContent="Copy Link",2000);
   };
 }
